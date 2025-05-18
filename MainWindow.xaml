@@ -164,65 +164,121 @@
             </TabItem>
 
             <!-- Travel Events Tab -->
+            <!-- Travel Events Tab -->
             <TabItem Header="Travel Events">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
-                        <CheckBox x:Name="IncludeTravelEventsCheck" Content="Include Travel Events" Margin="0,5,0,10" 
-                                 IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" FontWeight="Bold"/>
+                        <TextBlock Text="Travel Events" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <TextBlock Text="Click a button to generate and emit that specific event" 
+                     Margin="0,0,0,10" FontStyle="Italic"/>
 
-                        <GroupBox Header="Travel Event Settings">
-                            <StackPanel Margin="5">
-                                <CheckBox x:Name="TravelFSDJumpCheck" Content="FSDJump" Margin="0,5" 
-                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="TravelStartJumpCheck" Content="StartJump" Margin="0,5" 
-                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="TravelLocationCheck" Content="Location" Margin="0,5" 
-                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="TravelApproachBodyCheck" Content="ApproachBody" Margin="0,5" 
-                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="TravelLeaveBodyCheck" Content="LeaveBody" Margin="0,5" 
-                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="TravelSupercruiseEntryCheck" Content="SupercruiseEntry" Margin="0,5" 
-                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="TravelSupercruiseExitCheck" Content="SupercruiseExit" Margin="0,5" 
-                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                            </StackPanel>
+                        <GroupBox Header="Jump Events">
+                            <WrapPanel Margin="5">
+                                <Button Content="StartJump" Margin="5" Padding="10,5" 
+                           Click="TravelStartJumpButton_Click"/>
+                                <Button Content="FSDJump" Margin="5" Padding="10,5" 
+                           Click="TravelFSDJumpButton_Click"/>
+                                <Button Content="Jump Sequence" Margin="5" Padding="10,5" 
+                           Click="TravelJumpSequenceButton_Click" 
+                           ToolTip="Emits StartJump followed by FSDJump"/>
+                            </WrapPanel>
                         </GroupBox>
 
-                        <Button Content="Generate Travel Events" Margin="0,10,0,0" Padding="10,5" Click="GenerateTravelEventsButton_Click"/>
+                        <GroupBox Header="Supercruise Events" Margin="0,10,0,0">
+                            <WrapPanel Margin="5">
+                                <Button Content="SupercruiseEntry" Margin="5" Padding="10,5" 
+                           Click="TravelSupercruiseEntryButton_Click"/>
+                                <Button Content="SupercruiseExit" Margin="5" Padding="10,5" 
+                           Click="TravelSupercruiseExitButton_Click"/>
+                            </WrapPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Body Approach Events" Margin="0,10,0,0">
+                            <WrapPanel Margin="5">
+                                <Button Content="ApproachBody" Margin="5" Padding="10,5" 
+                           Click="TravelApproachBodyButton_Click"/>
+                                <Button Content="LeaveBody" Margin="5" Padding="10,5" 
+                           Click="TravelLeaveBodyButton_Click"/>
+                            </WrapPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Location Events" Margin="0,10,0,0">
+                            <WrapPanel Margin="5">
+                                <Button Content="Location" Margin="5" Padding="10,5" 
+                           Click="TravelLocationButton_Click"/>
+                                <Button Content="Touchdown" Margin="5" Padding="10,5" 
+                           Click="TravelTouchdownButton_Click"/>
+                                <Button Content="Liftoff" Margin="5" Padding="10,5" 
+                           Click="TravelLiftoffButton_Click"/>
+                            </WrapPanel>
+                        </GroupBox>
+
+                        <Button Content="Generate All Selected Travel Events (Legacy)" 
+                   Margin="0,20,0,0" Padding="10,5" Click="GenerateTravelEventsButton_Click" 
+                   Visibility="Collapsed"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-
+            <!-- Combat Events Tab -->
             <!-- Combat Events Tab -->
             <TabItem Header="Combat Events">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
-                        <CheckBox x:Name="IncludeCombatEventsCheck" Content="Include Combat Events" Margin="0,5,0,10" 
-                                 IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" FontWeight="Bold"/>
+                        <TextBlock Text="Combat Events" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <TextBlock Text="Click a button to generate and emit that specific event" 
+                     Margin="0,0,0,10" FontStyle="Italic"/>
 
-                        <GroupBox Header="Combat Event Settings">
-                            <StackPanel Margin="5">
-                                <CheckBox x:Name="CombatDiedCheck" Content="Died" Margin="0,5" 
-                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="CombatHullDamageCheck" Content="HullDamage" Margin="0,5" 
-                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="CombatShieldStateCheck" Content="ShieldState" Margin="0,5" 
-                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="CombatUnderAttackCheck" Content="UnderAttack" Margin="0,5" 
-                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="CombatFactionKillBondCheck" Content="FactionKillBond" Margin="0,5" 
-                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                                <CheckBox x:Name="CombatBountyCheck" Content="Bounty" Margin="0,5" 
-                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
-                            </StackPanel>
+                        <GroupBox Header="Basic Combat Events">
+                            <WrapPanel Margin="5">
+                                <Button Content="Under Attack" Margin="5" Padding="10,5" 
+                           Click="CombatUnderAttackButton_Click"/>
+                                <Button Content="Shield Down" Margin="5" Padding="10,5" 
+                           Click="CombatShieldDownButton_Click"/>
+                                <Button Content="Shield Up" Margin="5" Padding="10,5" 
+                           Click="CombatShieldUpButton_Click"/>
+                            </WrapPanel>
                         </GroupBox>
 
-                        <Button Content="Generate Combat Events" Margin="0,10,0,0" Padding="10,5" Click="GenerateCombatEventsButton_Click"/>
+                        <GroupBox Header="Damage Events" Margin="0,10,0,0">
+                            <WrapPanel Margin="5">
+                                <Button Content="Hull Damage (80%)" Margin="5" Padding="10,5" 
+                           Click="CombatHullDamage80Button_Click"/>
+                                <Button Content="Hull Damage (50%)" Margin="5" Padding="10,5" 
+                           Click="CombatHullDamage50Button_Click"/>
+                                <Button Content="Hull Damage (20%)" Margin="5" Padding="10,5" 
+                           Click="CombatHullDamage20Button_Click"/>
+                            </WrapPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Death / Rebuy" Margin="0,10,0,0">
+                            <WrapPanel Margin="5">
+                                <Button Content="Died" Margin="5" Padding="10,5" 
+                           Click="CombatDiedButton_Click"/>
+                                <Button Content="Resurrect" Margin="5" Padding="10,5" 
+                           Click="CombatResurrectButton_Click"/>
+                                <Button Content="Combat Sequence" Margin="5" Padding="10,5" 
+                           Click="CombatSequenceButton_Click"
+                           ToolTip="Emits a full combat sequence: Under Attack, Shield Down, Hull Damage, Died, Resurrect"/>
+                            </WrapPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Rewards / Encounters" Margin="0,10,0,0">
+                            <WrapPanel Margin="5">
+                                <Button Content="Bounty" Margin="5" Padding="10,5" 
+                           Click="CombatBountyButton_Click"/>
+                                <Button Content="Faction Kill Bond" Margin="5" Padding="10,5" 
+                           Click="CombatFactionKillBondButton_Click"/>
+                                <Button Content="Interdiction" Margin="5" Padding="10,5" 
+                           Click="CombatInterdictionButton_Click"/>
+                                <Button Content="Interdicted" Margin="5" Padding="10,5" 
+                           Click="CombatInterdictedButton_Click"/>
+                                <Button Content="PvP Kill" Margin="5" Padding="10,5" 
+                           Click="CombatPvPKillButton_Click"/>
+                            </WrapPanel>
+                        </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-
             <!-- Exploration Events Tab -->
             <TabItem Header="Exploration Events">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">

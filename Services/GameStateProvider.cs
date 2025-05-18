@@ -102,22 +102,6 @@ namespace EliteDangerousEmulator.Services
             return Math.Round(_random.NextDouble() * 32 + 5, 6);
         }
 
-        // UI state methods
-        public bool IsTravelStartJumpEnabled() => _mainWindow.TravelStartJumpCheck.IsChecked ?? false;
-        public bool IsTravelFSDJumpEnabled() => _mainWindow.TravelFSDJumpCheck.IsChecked ?? false;
-        public bool IsTravelLocationEnabled() => _mainWindow.TravelLocationCheck.IsChecked ?? false;
-        public bool IsTravelApproachBodyEnabled() => _mainWindow.TravelApproachBodyCheck.IsChecked ?? false;
-        public bool IsTravelLeaveBodyEnabled() => _mainWindow.TravelLeaveBodyCheck.IsChecked ?? false;
-        public bool IsTravelSupercruiseEntryEnabled() => _mainWindow.TravelSupercruiseEntryCheck.IsChecked ?? false;
-        public bool IsTravelSupercruiseExitEnabled() => _mainWindow.TravelSupercruiseExitCheck.IsChecked ?? false;
-
-        public bool IsCombatDiedEnabled() => _mainWindow.CombatDiedCheck.IsChecked ?? false;
-        public bool IsCombatHullDamageEnabled() => _mainWindow.CombatHullDamageCheck.IsChecked ?? false;
-        public bool IsCombatShieldStateEnabled() => _mainWindow.CombatShieldStateCheck.IsChecked ?? false;
-        public bool IsCombatUnderAttackEnabled() => _mainWindow.CombatUnderAttackCheck.IsChecked ?? false;
-        public bool IsCombatFactionKillBondEnabled() => _mainWindow.CombatFactionKillBondCheck.IsChecked ?? false;
-        public bool IsCombatBountyEnabled() => _mainWindow.CombatBountyCheck.IsChecked ?? false;
-
         // Logging methods
         public void AppendToLog(string message) => _mainWindow.AppendToLog(message);
         public void AppendToJournal(string content) => _mainWindow.AppendToJournal(content);

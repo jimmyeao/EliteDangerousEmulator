@@ -25,7 +25,7 @@ namespace EliteDangerousEmulator
         private bool _isInitializing = true;
         private string _outputDirectory;
         private ApplicationSettings _settings = new ApplicationSettings();
-
+        private TravelEventGenerator _travelGenerator;
         #endregion Private Fields
 
         #region Public Constructors
@@ -54,7 +54,7 @@ namespace EliteDangerousEmulator
 
             // Create the game state provider
             _gameStateProvider = new GameStateProvider(this);
-
+            _travelGenerator = new TravelEventGenerator(_gameStateProvider);
             _isInitializing = false;
         }
 
@@ -513,22 +513,7 @@ namespace EliteDangerousEmulator
                     StartupRankCheck.IsChecked = _settings.StartupRank;
                     StartupReputationCheck.IsChecked = _settings.StartupReputation;
 
-                    // Travel Event Settings
-                    IncludeTravelEventsCheck.IsChecked = _settings.IncludeTravelEvents;
-                    TravelFSDJumpCheck.IsChecked = _settings.TravelFSDJump;
-                    TravelLocationCheck.IsChecked = _settings.TravelLocation;
-                    TravelApproachBodyCheck.IsChecked = _settings.TravelApproachBody;
-                    TravelLeaveBodyCheck.IsChecked = _settings.TravelLeaveBody;
-                    TravelSupercruiseEntryCheck.IsChecked = _settings.TravelSupercruiseEntry;
-                    TravelSupercruiseExitCheck.IsChecked = _settings.TravelSupercruiseExit;
-                    TravelStartJumpCheck.IsChecked = _settings.TravelStartJump;
-                    // Combat Event Settings
-                    CombatDiedCheck.IsChecked = _settings.CombatDied;
-                    CombatHullDamageCheck.IsChecked = _settings.CombatHullDamage;
-                    CombatShieldStateCheck.IsChecked = _settings.CombatShieldState;
-                    CombatUnderAttackCheck.IsChecked = _settings.CombatUnderAttack;
-                    CombatFactionKillBondCheck.IsChecked = _settings.CombatFactionKillBond;
-                    CombatBountyCheck.IsChecked = _settings.CombatBounty;
+                   
 
                     // Exploration Event Settings
                     ExplorationScanCheck.IsChecked = _settings.ExplorationScan;
@@ -558,7 +543,7 @@ namespace EliteDangerousEmulator
 
                     IncludeStartupEventsCheck.IsChecked = _settings.IncludeStartupEvents;
                     IncludeExplorationEventsCheck.IsChecked = _settings.IncludeExplorationEvents;
-                    IncludeCombatEventsCheck.IsChecked = _settings.IncludeCombatEvents;
+                  
                     IncludeStationEventsCheck.IsChecked = _settings.IncludeStationEvents;
                     // Station Events
                     StationDockedCheck.IsChecked = _settings.StationDocked;
@@ -655,21 +640,8 @@ namespace EliteDangerousEmulator
                 _settings.StartupReputation = StartupReputationCheck.IsChecked ?? false;
 
                 // Travel Event Settings
-                _settings.IncludeTravelEvents = IncludeTravelEventsCheck.IsChecked ?? false;
-                _settings.TravelFSDJump = TravelFSDJumpCheck.IsChecked ?? false;
-                _settings.TravelLocation = TravelLocationCheck.IsChecked ?? false;
-                _settings.TravelApproachBody = TravelApproachBodyCheck.IsChecked ?? false;
-                _settings.TravelLeaveBody = TravelLeaveBodyCheck.IsChecked ?? false;
-                _settings.TravelSupercruiseEntry = TravelSupercruiseEntryCheck.IsChecked ?? false;
-                _settings.TravelSupercruiseExit = TravelSupercruiseExitCheck.IsChecked ?? false;
-                _settings.TravelStartJump = TravelStartJumpCheck.IsChecked ?? false;
-                // Combat Event Settings
-                _settings.CombatDied = CombatDiedCheck.IsChecked ?? false;
-                _settings.CombatHullDamage = CombatHullDamageCheck.IsChecked ?? false;
-                _settings.CombatShieldState = CombatShieldStateCheck.IsChecked ?? false;
-                _settings.CombatUnderAttack = CombatUnderAttackCheck.IsChecked ?? false;
-                _settings.CombatFactionKillBond = CombatFactionKillBondCheck.IsChecked ?? false;
-                _settings.CombatBounty = CombatBountyCheck.IsChecked ?? false;
+              
+              
 
                 // Exploration Event Settings
                 _settings.ExplorationScan = ExplorationScanCheck.IsChecked ?? false;
@@ -699,7 +671,7 @@ namespace EliteDangerousEmulator
 
                 _settings.IncludeStartupEvents = IncludeStartupEventsCheck.IsChecked ?? false;
                 _settings.IncludeExplorationEvents = IncludeExplorationEventsCheck.IsChecked ?? false;
-                _settings.IncludeCombatEvents = IncludeCombatEventsCheck.IsChecked ?? false;
+               
                 _settings.IncludeStationEvents = IncludeStationEventsCheck.IsChecked ?? false;
 
                 _settings.CommanderName = CommanderTextBox.Text;
@@ -1262,5 +1234,438 @@ namespace EliteDangerousEmulator
             return StationTextBox.Text;
         }
         #endregion Helper Methods
+        #region travel events
+        // Add these new event handlers to your MainWindow.xaml.cs file
+
+        private void TravelStartJumpButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateStartJumpEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated StartJump event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating StartJump event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelFSDJumpButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateFSDJumpEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated FSDJump event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating FSDJump event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelJumpSequenceButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+
+                // Generate StartJump followed by FSDJump (with a simulated delay)
+                string startJumpJson = travelGenerator.GenerateStartJumpEvent();
+                AppendToJournal(startJumpJson);
+
+                // Simulate a delay between events (in a real game, this would be ~15-20 seconds)
+                // For the emulator, we'll use a faster delay for testing
+                System.Threading.Thread.Sleep(1000);
+
+                string fsdJumpJson = travelGenerator.GenerateFSDJumpEvent();
+                AppendToJournal(fsdJumpJson);
+
+                AppendToLog("Generated Jump Sequence (StartJump + FSDJump)");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Jump Sequence: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelSupercruiseEntryButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateSupercruiseEntryEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated SupercruiseEntry event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating SupercruiseEntry event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelSupercruiseExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateSupercruiseExitEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated SupercruiseExit event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating SupercruiseExit event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelApproachBodyButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateApproachBodyEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated ApproachBody event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating ApproachBody event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelLeaveBodyButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateLeaveBodyEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated LeaveBody event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating LeaveBody event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelLocationButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateLocationEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated Location event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Location event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelTouchdownButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateTouchdownEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated Touchdown event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Touchdown event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void TravelLiftoffButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
+                string eventJson = travelGenerator.GenerateLiftoffEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated Liftoff event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Liftoff event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion travel events
+        #region combat events
+        // Combat event handlers
+        private void CombatUnderAttackButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateUnderAttackEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated UnderAttack event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating UnderAttack event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatShieldDownButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateShieldStateEvent(0, false);
+                AppendToJournal(eventJson);
+                AppendToLog("Generated ShieldState Down event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating ShieldState event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatShieldUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateShieldStateEvent(0, true);
+                AppendToJournal(eventJson);
+                AppendToLog("Generated ShieldState Up event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating ShieldState event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatHullDamage80Button_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateHullDamageEvent(0, 0.8);
+                AppendToJournal(eventJson);
+                AppendToLog("Generated HullDamage 80% event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating HullDamage event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatHullDamage50Button_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateHullDamageEvent(0, 0.5);
+                AppendToJournal(eventJson);
+                AppendToLog("Generated HullDamage 50% event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating HullDamage event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatHullDamage20Button_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateHullDamageEvent(0, 0.2);
+                AppendToJournal(eventJson);
+                AppendToLog("Generated HullDamage 20% event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating HullDamage event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatDiedButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateDiedEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated Died event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Died event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatResurrectButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateResurrectEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated Resurrect event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Resurrect event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatSequenceButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+
+                // Generate a complete combat sequence with appropriate time offsets
+                string underAttackJson = combatGenerator.GenerateUnderAttackEvent(0);
+                AppendToJournal(underAttackJson);
+
+                // Delay between events for more realistic timing
+                System.Threading.Thread.Sleep(500);
+
+                string shieldDownJson = combatGenerator.GenerateShieldStateEvent(5, false);
+                AppendToJournal(shieldDownJson);
+
+                System.Threading.Thread.Sleep(500);
+
+                string hullDamage80Json = combatGenerator.GenerateHullDamageEvent(10, 0.8);
+                AppendToJournal(hullDamage80Json);
+
+                System.Threading.Thread.Sleep(500);
+
+                string hullDamage50Json = combatGenerator.GenerateHullDamageEvent(15, 0.5);
+                AppendToJournal(hullDamage50Json);
+
+                System.Threading.Thread.Sleep(500);
+
+                string hullDamage20Json = combatGenerator.GenerateHullDamageEvent(20, 0.2);
+                AppendToJournal(hullDamage20Json);
+
+                System.Threading.Thread.Sleep(500);
+
+                string diedJson = combatGenerator.GenerateDiedEvent(25);
+                AppendToJournal(diedJson);
+
+                System.Threading.Thread.Sleep(1000);
+
+                string resurrectJson = combatGenerator.GenerateResurrectEvent(35);
+                AppendToJournal(resurrectJson);
+
+                AppendToLog("Generated complete combat sequence");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating combat sequence: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatBountyButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateBountyEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated Bounty event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Bounty event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatFactionKillBondButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateFactionKillBondEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated FactionKillBond event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating FactionKillBond event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatInterdictionButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateInterdictionEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated Interdiction event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Interdiction event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatInterdictedButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GenerateInterdictedEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated Interdicted event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating Interdicted event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CombatPvPKillButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
+                string eventJson = combatGenerator.GeneratePvPKillEvent();
+                AppendToJournal(eventJson);
+                AppendToLog("Generated PvPKill event");
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating PvPKill event: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        #endregion combat events
     }
 }
