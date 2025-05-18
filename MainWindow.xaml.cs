@@ -9,6 +9,9 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Xml;
+using EliteDangerousEmulator.Interfaces;
+using EliteDangerousEmulator.Services;
+using EliteDangerousEmulator.EventGenerators;
 
 namespace EliteDangerousEmulator
 {
@@ -19,6 +22,7 @@ namespace EliteDangerousEmulator
         private ApplicationSettings _settings = new ApplicationSettings();
         private const string SettingsFileName = "EliteDangerousEmulatorSettings.json";
         private bool _isInitializing = true;
+        private IGameStateProvider _gameStateProvider;
         public MainWindow()
         {
             InitializeComponent();
@@ -40,6 +44,10 @@ namespace EliteDangerousEmulator
             _outputDirectory = OutputDirectoryTextBox.Text;
 
             AppendToLog($"Current output directory: {_outputDirectory}");
+
+            // Create the game state provider
+            _gameStateProvider = new GameStateProvider(this);
+
             _isInitializing = false;
         }
         private void SettingsChanged(object sender, TextChangedEventArgs e)
@@ -165,91 +173,53 @@ namespace EliteDangerousEmulator
 
         private void GenerateTravelEvents()
         {
-            StringBuilder journalBuilder = new StringBuilder();
-            int eventCount = 0;
-
-            AppendToLog("Starting to generate travel events...");
-
-            // Generate the events in the correct sequence
-
-            // StartJump should come before FSDJump with proper timing
-            if (TravelStartJumpCheck.IsChecked == true && TravelFSDJumpCheck.IsChecked == true)
+            try
             {
-                // First emit the StartJump (happens ~15-20 seconds before FSDJump)
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"StartJump\", \"JumpType\":\"Hyperspace\", \"Taxi\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarClass\":\"K\" }}");
-                eventCount++;
+                // Create the event generator
+                var travelGenerator = new TravelEventGenerator(_gameStateProvider);
 
-                // Then emit the FSDJump (with timestamp ~18 seconds later)
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(18)}\", \"event\":\"FSDJump\", \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarPos\":[{GetRandomStarPos()}], \"SystemAllegiance\":\"\", \"SystemEconomy\":\"$economy_None;\", \"SystemEconomy_Localised\":\"None\", \"SystemSecondEconomy\":\"$economy_None;\", \"SystemSecondEconomy_Localised\":\"None\", \"SystemGovernment\":\"$government_None;\", \"SystemGovernment_Localised\":\"None\", \"SystemSecurity\":\"$GAlAXY_MAP_INFO_state_anarchy;\", \"SystemSecurity_Localised\":\"Anarchy\", \"Population\":0, \"Body\":\"{GetCurrentSystem()}\", \"BodyID\":0, \"BodyType\":\"Star\", \"JumpDist\":{GetRandomJumpDistance()}, \"FuelUsed\":{GetRandomFuelUsed()}, \"FuelLevel\":{GetRandomFuelLevel()} }}");
-                eventCount++;
+                // Generate the events
+                string eventsString = travelGenerator.GenerateEvents();
+
+                // Process the generated events
+                if (!string.IsNullOrEmpty(eventsString))
+                {
+                    AppendToJournal(eventsString);
+                }
+
+                MessageBox.Show("Travel events generated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            // If only FSDJump is selected (without StartJump)
-            else if (TravelFSDJumpCheck.IsChecked == true)
+            catch (Exception ex)
             {
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"FSDJump\", \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarPos\":[{GetRandomStarPos()}], \"SystemAllegiance\":\"\", \"SystemEconomy\":\"$economy_None;\", \"SystemEconomy_Localised\":\"None\", \"SystemSecondEconomy\":\"$economy_None;\", \"SystemSecondEconomy_Localised\":\"None\", \"SystemGovernment\":\"$government_None;\", \"SystemGovernment_Localised\":\"None\", \"SystemSecurity\":\"$GAlAXY_MAP_INFO_state_anarchy;\", \"SystemSecurity_Localised\":\"Anarchy\", \"Population\":0, \"Body\":\"{GetCurrentSystem()}\", \"BodyID\":0, \"BodyType\":\"Star\", \"JumpDist\":{GetRandomJumpDistance()}, \"FuelUsed\":{GetRandomFuelUsed()}, \"FuelLevel\":{GetRandomFuelLevel()} }}");
-                eventCount++;
-            }
-            // If only StartJump is selected (without FSDJump)
-            else if (TravelStartJumpCheck.IsChecked == true)
-            {
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"StartJump\", \"JumpType\":\"Hyperspace\", \"Taxi\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarClass\":\"K\" }}");
-                eventCount++;
-            }
-
-            if (TravelLocationCheck.IsChecked == true)
-            {
-                // We'll add Location after any jumps to maintain logical sequence
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(25)}\", \"event\":\"Location\", \"Docked\":{(GetDockedStatus() == "Docked" ? "true" : "false")}, \"StationName\":\"{GetStationName()}\", \"StationType\":\"FleetCarrier\", \"MarketID\":3706669824, \"StationFaction\":{{ \"Name\":\"FleetCarrier\" }}, \"StationGovernment\":\"$government_Carrier;\", \"StationGovernment_Localised\":\"Private Ownership\", \"StationServices\":[ \"dock\", \"autodock\", \"commodities\", \"contacts\", \"crewlounge\", \"rearm\", \"refuel\", \"repair\", \"engineer\", \"flightcontroller\", \"stationoperations\", \"stationMenu\", \"carriermanagement\", \"carrierfuel\", \"socialspace\", \"bartender\" ], \"StationEconomy\":\"$economy_Carrier;\", \"StationEconomy_Localised\":\"Private Enterprise\", \"StationEconomies\":[ {{ \"Name\":\"$economy_Carrier;\", \"Name_Localised\":\"Private Enterprise\", \"Proportion\":1.000000 }} ], \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarPos\":[{GetRandomStarPos()}], \"SystemAllegiance\":\"\", \"SystemEconomy\":\"$economy_None;\", \"SystemEconomy_Localised\":\"None\", \"SystemSecondEconomy\":\"$economy_None;\", \"SystemSecondEconomy_Localised\":\"None\", \"SystemGovernment\":\"$government_None;\", \"SystemGovernment_Localised\":\"None\", \"SystemSecurity\":\"$GAlAXY_MAP_INFO_state_anarchy;\", \"SystemSecurity_Localised\":\"Anarchy\", \"Population\":0, \"Body\":\"{GetCurrentSystem()}\", \"BodyID\":0, \"BodyType\":\"Star\" }}");
-                eventCount++;
-            }
-
-            // Add other travel events (ApproachBody, LeaveBody, etc.)
-            // ...
-
-            AppendToLog($"Generated {eventCount} travel events");
-
-            // Append all events to the journal
-            if (journalBuilder.Length > 0)
-            {
-                string eventsString = journalBuilder.ToString();
-                AppendToLog($"Travel events string length: {eventsString.Length} chars");
-                AppendToJournal(eventsString);
-            }
-            else
-            {
-                AppendToLog("No travel events were selected to generate");
+                AppendToLog($"Error generating travel events: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
+
         private void GenerateCombatEvents()
         {
-            StringBuilder journalBuilder = new StringBuilder();
-
-            if (CombatUnderAttackCheck.IsChecked == true)
+            try
             {
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"UnderAttack\", \"Target\":\"You\" }}");
-            }
+                // Create the event generator
+                var combatGenerator = new CombatEventGenerator(_gameStateProvider);
 
-            if (CombatShieldStateCheck.IsChecked == true)
+                // Generate the events
+                string eventsString = combatGenerator.GenerateEvents();
+
+                // Process the generated events
+                if (!string.IsNullOrEmpty(eventsString))
+                {
+                    AppendToJournal(eventsString);
+                }
+
+                MessageBox.Show("Combat events generated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
             {
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"ShieldState\", \"ShieldsUp\":false }}");
+                AppendToLog($"Error generating combat events: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            if (CombatHullDamageCheck.IsChecked == true)
-            {
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"HullDamage\", \"Health\":0.798478, \"PlayerPilot\":true, \"Fighter\":false }}");
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(20)}\", \"event\":\"HullDamage\", \"Health\":0.599972, \"PlayerPilot\":true, \"Fighter\":false }}");
-            }
-
-            if (CombatDiedCheck.IsChecked == true)
-            {
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(50)}\", \"event\":\"Died\", \"KillerName\":\"$UNKNOWN;\", \"KillerName_Localised\":\"Unknown\", \"KillerShip\":\"scout_q\", \"KillerRank\":\"Elite\" }}");
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(70)}\", \"event\":\"Resurrect\", \"Option\":\"rebuy\", \"Cost\":8305590, \"Bankrupt\":false }}");
-            }
-
-            // Add other combat events
-
-            AppendToJournal(journalBuilder.ToString());
         }
 
         private void GenerateExplorationEvents()
@@ -272,7 +242,7 @@ namespace EliteDangerousEmulator
         }
 
         // Helper method to append to the journal
-        private void AppendToJournal(string content)
+        public void AppendToJournal(string content)
         {
             string todayDatePrefix = DateTime.Now.ToString("yyyy-MM-dd");
             string[] existingJournalFiles = Directory.GetFiles(_outputDirectory, $"Journal.{todayDatePrefix}*.log");
@@ -744,7 +714,7 @@ namespace EliteDangerousEmulator
             }
         }
 
-        private void AppendToLog(string message)
+        public void AppendToLog(string message)
         {
             //return if we are still initilaising
             if (_isInitializing)
