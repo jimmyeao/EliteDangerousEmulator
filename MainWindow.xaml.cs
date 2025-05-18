@@ -129,24 +129,96 @@ namespace EliteDangerousEmulator
 
             AppendToJournal(journalBuilder.ToString());
         }
+        // Helper methods to generate realistic-looking random values
+        private string GetRandomSystemAddress()
+        {
+            Random rand = new Random();
+            return rand.Next(10000000, 99999999) + rand.Next(10000000, 99999999) + ""; // Generate large random number
+        }
+
+        private string GetRandomStarPos()
+        {
+            Random rand = new Random();
+            double x = Math.Round(rand.NextDouble() * 400 - 200, 5); // Random value between -200 and 200
+            double y = Math.Round(rand.NextDouble() * 400 - 200, 5);
+            double z = Math.Round(rand.NextDouble() * 400 - 200, 5);
+            return $"{x},{y},{z}";
+        }
+
+        private double GetRandomJumpDistance()
+        {
+            Random rand = new Random();
+            return Math.Round(rand.NextDouble() * 80, 3); // Random jump distance 0-80 ly
+        }
+
+        private double GetRandomFuelUsed()
+        {
+            Random rand = new Random();
+            return Math.Round(rand.NextDouble() * 8, 6); // Random fuel used 0-8 tons
+        }
+
+        private double GetRandomFuelLevel()
+        {
+            Random rand = new Random();
+            return Math.Round(rand.NextDouble() * 32 + 5, 6); // Random fuel level 5-37 tons
+        }
 
         private void GenerateTravelEvents()
         {
             StringBuilder journalBuilder = new StringBuilder();
+            int eventCount = 0;
+
+            AppendToLog("Starting to generate travel events...");
+
+            // Generate the events in the correct sequence
+
+            // StartJump should come before FSDJump with proper timing
+            if (TravelStartJumpCheck.IsChecked == true && TravelFSDJumpCheck.IsChecked == true)
+            {
+                // First emit the StartJump (happens ~15-20 seconds before FSDJump)
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"StartJump\", \"JumpType\":\"Hyperspace\", \"Taxi\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarClass\":\"K\" }}");
+                eventCount++;
+
+                // Then emit the FSDJump (with timestamp ~18 seconds later)
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(18)}\", \"event\":\"FSDJump\", \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarPos\":[{GetRandomStarPos()}], \"SystemAllegiance\":\"\", \"SystemEconomy\":\"$economy_None;\", \"SystemEconomy_Localised\":\"None\", \"SystemSecondEconomy\":\"$economy_None;\", \"SystemSecondEconomy_Localised\":\"None\", \"SystemGovernment\":\"$government_None;\", \"SystemGovernment_Localised\":\"None\", \"SystemSecurity\":\"$GAlAXY_MAP_INFO_state_anarchy;\", \"SystemSecurity_Localised\":\"Anarchy\", \"Population\":0, \"Body\":\"{GetCurrentSystem()}\", \"BodyID\":0, \"BodyType\":\"Star\", \"JumpDist\":{GetRandomJumpDistance()}, \"FuelUsed\":{GetRandomFuelUsed()}, \"FuelLevel\":{GetRandomFuelLevel()} }}");
+                eventCount++;
+            }
+            // If only FSDJump is selected (without StartJump)
+            else if (TravelFSDJumpCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"FSDJump\", \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarPos\":[{GetRandomStarPos()}], \"SystemAllegiance\":\"\", \"SystemEconomy\":\"$economy_None;\", \"SystemEconomy_Localised\":\"None\", \"SystemSecondEconomy\":\"$economy_None;\", \"SystemSecondEconomy_Localised\":\"None\", \"SystemGovernment\":\"$government_None;\", \"SystemGovernment_Localised\":\"None\", \"SystemSecurity\":\"$GAlAXY_MAP_INFO_state_anarchy;\", \"SystemSecurity_Localised\":\"Anarchy\", \"Population\":0, \"Body\":\"{GetCurrentSystem()}\", \"BodyID\":0, \"BodyType\":\"Star\", \"JumpDist\":{GetRandomJumpDistance()}, \"FuelUsed\":{GetRandomFuelUsed()}, \"FuelLevel\":{GetRandomFuelLevel()} }}");
+                eventCount++;
+            }
+            // If only StartJump is selected (without FSDJump)
+            else if (TravelStartJumpCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"StartJump\", \"JumpType\":\"Hyperspace\", \"Taxi\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarClass\":\"K\" }}");
+                eventCount++;
+            }
 
             if (TravelLocationCheck.IsChecked == true)
             {
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"Location\", \"Docked\":{(GetDockedStatus() == "Docked" ? "true" : "false")}, \"StationName\":\"{GetStationName()}\", \"StationType\":\"FleetCarrier\", \"MarketID\":3706669824, \"StationFaction\":{{ \"Name\":\"FleetCarrier\" }}, \"StationGovernment\":\"$government_Carrier;\", \"StationGovernment_Localised\":\"Private Ownership\", \"StationServices\":[ \"dock\", \"autodock\", \"commodities\", \"contacts\", \"crewlounge\", \"rearm\", \"refuel\", \"repair\", \"engineer\", \"flightcontroller\", \"stationoperations\", \"stationMenu\", \"carriermanagement\", \"carrierfuel\", \"socialspace\", \"bartender\" ], \"StationEconomy\":\"$economy_Carrier;\", \"StationEconomy_Localised\":\"Private Enterprise\", \"StationEconomies\":[ {{ \"Name\":\"$economy_Carrier;\", \"Name_Localised\":\"Private Enterprise\", \"Proportion\":1.000000 }} ], \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":285355264323, \"StarPos\":[-49.46875,-55.25000,-360.59375], \"SystemAllegiance\":\"\", \"SystemEconomy\":\"$economy_None;\", \"SystemEconomy_Localised\":\"None\", \"SystemSecondEconomy\":\"$economy_None;\", \"SystemSecondEconomy_Localised\":\"None\", \"SystemGovernment\":\"$government_None;\", \"SystemGovernment_Localised\":\"None\", \"SystemSecurity\":\"$GAlAXY_MAP_INFO_state_anarchy;\", \"SystemSecurity_Localised\":\"Anarchy\", \"Population\":0, \"Body\":\"{GetCurrentSystem()}\", \"BodyID\":0, \"BodyType\":\"Star\" }}");
+                // We'll add Location after any jumps to maintain logical sequence
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(25)}\", \"event\":\"Location\", \"Docked\":{(GetDockedStatus() == "Docked" ? "true" : "false")}, \"StationName\":\"{GetStationName()}\", \"StationType\":\"FleetCarrier\", \"MarketID\":3706669824, \"StationFaction\":{{ \"Name\":\"FleetCarrier\" }}, \"StationGovernment\":\"$government_Carrier;\", \"StationGovernment_Localised\":\"Private Ownership\", \"StationServices\":[ \"dock\", \"autodock\", \"commodities\", \"contacts\", \"crewlounge\", \"rearm\", \"refuel\", \"repair\", \"engineer\", \"flightcontroller\", \"stationoperations\", \"stationMenu\", \"carriermanagement\", \"carrierfuel\", \"socialspace\", \"bartender\" ], \"StationEconomy\":\"$economy_Carrier;\", \"StationEconomy_Localised\":\"Private Enterprise\", \"StationEconomies\":[ {{ \"Name\":\"$economy_Carrier;\", \"Name_Localised\":\"Private Enterprise\", \"Proportion\":1.000000 }} ], \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":{GetRandomSystemAddress()}, \"StarPos\":[{GetRandomStarPos()}], \"SystemAllegiance\":\"\", \"SystemEconomy\":\"$economy_None;\", \"SystemEconomy_Localised\":\"None\", \"SystemSecondEconomy\":\"$economy_None;\", \"SystemSecondEconomy_Localised\":\"None\", \"SystemGovernment\":\"$government_None;\", \"SystemGovernment_Localised\":\"None\", \"SystemSecurity\":\"$GAlAXY_MAP_INFO_state_anarchy;\", \"SystemSecurity_Localised\":\"Anarchy\", \"Population\":0, \"Body\":\"{GetCurrentSystem()}\", \"BodyID\":0, \"BodyType\":\"Star\" }}");
+                eventCount++;
             }
 
-            if (TravelFSDJumpCheck.IsChecked == true)
+            // Add other travel events (ApproachBody, LeaveBody, etc.)
+            // ...
+
+            AppendToLog($"Generated {eventCount} travel events");
+
+            // Append all events to the journal
+            if (journalBuilder.Length > 0)
             {
-                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"FSDJump\", \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"{GetCurrentSystem()}\", \"SystemAddress\":319715002691, \"StarPos\":[-41.31250,-58.96875,-354.78125], \"SystemAllegiance\":\"\", \"SystemEconomy\":\"$economy_None;\", \"SystemEconomy_Localised\":\"None\", \"SystemSecondEconomy\":\"$economy_None;\", \"SystemSecondEconomy_Localised\":\"None\", \"SystemGovernment\":\"$government_None;\", \"SystemGovernment_Localised\":\"None\", \"SystemSecurity\":\"$GAlAXY_MAP_INFO_state_anarchy;\", \"SystemSecurity_Localised\":\"Anarchy\", \"Population\":0, \"Body\":\"{GetCurrentSystem()}\", \"BodyID\":0, \"BodyType\":\"Star\", \"JumpDist\":10.684, \"FuelUsed\":0.728097, \"FuelLevel\":39.271904, \"Factions\":[ {{ \"Name\":\"Azimuth Biotech\", \"FactionState\":\"None\", \"Government\":\"Corporate\", \"Influence\":0.000000, \"Allegiance\":\"Independent\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":3.179460 }} ], \"SystemFaction\":{{ \"Name\":\"Azimuth Biotech\" }} }}");
+                string eventsString = journalBuilder.ToString();
+                AppendToLog($"Travel events string length: {eventsString.Length} chars");
+                AppendToJournal(eventsString);
             }
-
-            // Add other travel events
-
-            AppendToJournal(journalBuilder.ToString());
+            else
+            {
+                AppendToLog("No travel events were selected to generate");
+            }
         }
 
         private void GenerateCombatEvents()
@@ -285,7 +357,7 @@ namespace EliteDangerousEmulator
                 _settings.TravelLeaveBody = TravelLeaveBodyCheck.IsChecked ?? false;
                 _settings.TravelSupercruiseEntry = TravelSupercruiseEntryCheck.IsChecked ?? false;
                 _settings.TravelSupercruiseExit = TravelSupercruiseExitCheck.IsChecked ?? false;
-
+                _settings.TravelStartJump = TravelStartJumpCheck.IsChecked ?? false;
                 // Combat Event Settings
                 _settings.CombatDied = CombatDiedCheck.IsChecked ?? false;
                 _settings.CombatHullDamage = CombatHullDamageCheck.IsChecked ?? false;
@@ -402,7 +474,7 @@ namespace EliteDangerousEmulator
                     TravelLeaveBodyCheck.IsChecked = _settings.TravelLeaveBody;
                     TravelSupercruiseEntryCheck.IsChecked = _settings.TravelSupercruiseEntry;
                     TravelSupercruiseExitCheck.IsChecked = _settings.TravelSupercruiseExit;
-
+                    TravelStartJumpCheck.IsChecked = _settings.TravelStartJump;
                     // Combat Event Settings
                     CombatDiedCheck.IsChecked = _settings.CombatDied;
                     CombatHullDamageCheck.IsChecked = _settings.CombatHullDamage;
@@ -680,6 +752,91 @@ namespace EliteDangerousEmulator
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             LogTextBox.AppendText($"[{timestamp}] {message}\r\n");
             LogTextBox.ScrollToEnd();
+        }
+        private void GenerateCarrierEventsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                GenerateCarrierEvents();
+                MessageBox.Show("Carrier events generated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                AppendToLog($"Error generating carrier events: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void GenerateCarrierEvents()
+        {
+            StringBuilder journalBuilder = new StringBuilder();
+            int eventCount = 0;
+
+            AppendToLog("Starting to generate carrier events...");
+
+            // Calculate jump time based on minutes and seconds settings
+            int totalSeconds = 0;
+            if (int.TryParse(CarrierJumpMinutesTextBox.Text, out int minutes))
+                totalSeconds += minutes * 60;
+            if (int.TryParse(CarrierJumpSecondsTextBox.Text, out int seconds))
+                totalSeconds += seconds;
+
+            // Check each carrier event type and generate if selected
+            if (CarrierJumpRequestCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp()}\", \"event\":\"CarrierJumpRequest\", \"CarrierID\":\"{StationTextBox.Text}\", \"SystemName\":\"{CurrentSystemTextBox.Text}\", \"Body\":\"A 3\", \"SystemAddress\":3068527642971, \"BodyID\":7, \"DepartureTime\":\"{GetCurrentTimestamp(totalSeconds)}\" }}");
+                eventCount++;
+            }
+
+            if (CarrierJumpCancelledCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(10)}\", \"event\":\"CarrierJumpCancelled\", \"CarrierID\":\"{StationTextBox.Text}\", \"SystemName\":\"{CurrentSystemTextBox.Text}\" }}");
+                eventCount++;
+            }
+
+            if (CarrierJumpCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(20)}\", \"event\":\"CarrierJump\", \"CarrierID\":\"{StationTextBox.Text}\", \"SystemName\":\"{CurrentSystemTextBox.Text}\", \"SystemAddress\":3068527642971, \"Body\":\"A 3\", \"BodyID\":7 }}");
+                eventCount++;
+            }
+
+            if (CarrierDockingPermissionCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(30)}\", \"event\":\"CarrierDockingPermission\", \"CarrierID\":\"{StationTextBox.Text}\", \"DockingAccess\":\"all\", \"AllowNotorious\":true }}");
+                eventCount++;
+            }
+
+            if (CarrierDepositFuelCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(40)}\", \"event\":\"CarrierDepositFuel\", \"CarrierID\":\"{StationTextBox.Text}\", \"Amount\":500, \"Total\":10000 }}");
+                eventCount++;
+            }
+
+            if (CarrierBuyCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(50)}\", \"event\":\"CarrierBuy\", \"CarrierID\":\"{StationTextBox.Text}\", \"BoughtPackage\":\"A Package\", \"Cost\":10000000 }}");
+                eventCount++;
+            }
+
+            if (CarrierSellCheck.IsChecked == true)
+            {
+                journalBuilder.AppendLine($"{{ \"timestamp\":\"{GetCurrentTimestamp(60)}\", \"event\":\"CarrierSell\", \"CarrierID\":\"{StationTextBox.Text}\", \"SoldPackage\":\"A Package\", \"Price\":5000000 }}");
+                eventCount++;
+            }
+
+            AppendToLog($"Generated {eventCount} carrier events");
+
+            // Append all events to the journal
+            if (journalBuilder.Length > 0)
+            {
+                string eventsString = journalBuilder.ToString();
+                AppendToLog($"Carrier events string length: {eventsString.Length} chars");
+                AppendToJournal(eventsString);
+            }
+            else
+            {
+                AppendToLog("No carrier events were selected to generate");
+            }
         }
 
         #region File Generation Methods

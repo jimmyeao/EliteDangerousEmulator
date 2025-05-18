@@ -88,7 +88,7 @@ namespace EliteDangerousEmulator
         public bool TravelLeaveBody { get; set; } = false;
         public bool TravelSupercruiseEntry { get; set; } = false;
         public bool TravelSupercruiseExit { get; set; } = false;
-
+        public bool TravelStartJump { get; set; } = true;
         // Combat Events
         public bool CombatDied { get; set; } = true;
         public bool CombatHullDamage { get; set; } = true;
