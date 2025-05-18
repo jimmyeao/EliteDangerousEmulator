@@ -1,0 +1,365 @@
+﻿<Window x:Class="EliteDangerousEmulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EliteDangerousEmulator"
+        mc:Ignorable="d"
+        Title="Elite Dangerous File Emulator" Height="800" Width="1000">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="10">
+            <TextBlock Text="Elite Dangerous File Emulator" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="Generate game files for application development and testing" FontStyle="Italic" Margin="0,0,0,10"/>
+
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox x:Name="OutputDirectoryTextBox" Grid.Column="0" Margin="0,0,5,0" Padding="5" TextChanged="SettingsChanged"/>
+                <Button x:Name="BrowseButton" Grid.Column="1" Content="Browse..." Padding="10,5" Click="BrowseButton_Click"/>
+            </Grid>
+        </StackPanel>
+
+        <TabControl Grid.Row="1" Margin="10">
+            <!-- Main Tab -->
+            <TabItem Header="Basic Settings">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="5">
+                        <GroupBox Header="File Selection">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="BackpackCheck" Content="Backpack.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CargoCheck" Content="Cargo.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="FCMaterialsCheck" Content="FCMaterials.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="ModulesInfoCheck" Content="ModulesInfo.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="NavRouteCheck" Content="NavRoute.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="OutfittingCheck" Content="Outfitting.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="ShipLockerCheck" Content="ShipLocker.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="ShipyardCheck" Content="Shipyard.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StatusCheck" Content="Status.json" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="JournalCheck" Content="Journal Log Files" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Live Updates" Margin="0,10,0,0">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="EnableLiveUpdatesCheck" Content="Enable Live File Updates" Margin="0,5" IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <Grid Margin="0,5,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Update Interval (sec):" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Column="1" x:Name="UpdateIntervalTextBox" Text="30" IsEnabled="{Binding ElementName=EnableLiveUpdatesCheck, Path=IsChecked}" TextChanged="SettingsChanged"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="5">
+                        <GroupBox Header="Game State">
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Commander:" Margin="0,5" VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" x:Name="CommanderTextBox" Text="Jimmyeao" Margin="5" TextChanged="SettingsChanged"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Ship Type:" Margin="0,5" VerticalAlignment="Center"/>
+                                <ComboBox Grid.Row="1" Grid.Column="1" x:Name="ShipTypeComboBox" Margin="5" SelectionChanged="ComboBoxChanged">
+                                    <ComboBoxItem Content="Federation_Corvette" IsSelected="True"/>
+                                    <ComboBoxItem Content="Krait_MKII"/>
+                                    <ComboBoxItem Content="Python"/>
+                                    <ComboBoxItem Content="Anaconda"/>
+                                    <ComboBoxItem Content="Type9"/>
+                                    <ComboBoxItem Content="Imperial_Cutter"/>
+                                </ComboBox>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Current System:" Margin="0,5" VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" x:Name="CurrentSystemTextBox" Text="HIP 22410" Margin="5" TextChanged="SettingsChanged"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Docked Status:" Margin="0,5" VerticalAlignment="Center"/>
+                                <ComboBox Grid.Row="3" Grid.Column="1" x:Name="DockedStatusComboBox" Margin="5" SelectionChanged="ComboBoxChanged">
+                                    <ComboBoxItem Content="Docked" IsSelected="True"/>
+                                    <ComboBoxItem Content="In Space"/>
+                                    <ComboBoxItem Content="In SuperCruise"/>
+                                </ComboBox>
+
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Station (if docked):" Margin="0,5" VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="4" Grid.Column="1" x:Name="StationTextBox" Text="JNZ-4XN" Margin="5" TextChanged="SettingsChanged"/>
+
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Credits:" Margin="0,5" VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="5" Grid.Column="1" x:Name="CreditsTextBox" Text="979884647" Margin="5" TextChanged="SettingsChanged"/>
+
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Fuel (tons):" Margin="0,5" VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="6" Grid.Column="1" x:Name="FuelTextBox" Text="50.91" Margin="5" TextChanged="SettingsChanged"/>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Customizations" Margin="0,10,0,0">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="EnableRandomizationCheck" Content="Randomize Values" Margin="0,5" IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="GenerateSimulatedJourneyCheck" Content="Generate Simulated Journey" Margin="0,5" IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="EmulateThargoidEncounterCheck" Content="Emulate Thargoid Encounter Events" Margin="0,5" IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Startup Events Tab -->
+            <TabItem Header="Startup Events">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <CheckBox x:Name="IncludeStartupEventsCheck" Content="Include Startup Events" Margin="0,5,0,10" 
+                                 IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" FontWeight="Bold"/>
+
+                        <GroupBox Header="Startup Event Settings">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="StartupClearSavedGameCheck" Content="ClearSavedGame" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StartupCommanderCheck" Content="Commander" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StartupLoadGameCheck" Content="LoadGame" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StartupNewCommanderCheck" Content="NewCommander" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StartupOdysseyCheck" Content="Odyssey" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StartupProgressCheck" Content="Progress" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StartupRankCheck" Content="Rank" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StartupReputationCheck" Content="Reputation" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <Button Content="Generate Startup Events" Margin="0,10,0,0" Padding="10,5" Click="GenerateStartupEventsButton_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Travel Events Tab -->
+            <TabItem Header="Travel Events">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <CheckBox x:Name="IncludeTravelEventsCheck" Content="Include Travel Events" Margin="0,5,0,10" 
+                                 IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" FontWeight="Bold"/>
+
+                        <GroupBox Header="Travel Event Settings">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="TravelFSDJumpCheck" Content="FSDJump" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="TravelLocationCheck" Content="Location" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="TravelApproachBodyCheck" Content="ApproachBody" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="TravelLeaveBodyCheck" Content="LeaveBody" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="TravelSupercruiseEntryCheck" Content="SupercruiseEntry" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="TravelSupercruiseExitCheck" Content="SupercruiseExit" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <Button Content="Generate Travel Events" Margin="0,10,0,0" Padding="10,5" Click="GenerateTravelEventsButton_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Combat Events Tab -->
+            <TabItem Header="Combat Events">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <CheckBox x:Name="IncludeCombatEventsCheck" Content="Include Combat Events" Margin="0,5,0,10" 
+                                 IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" FontWeight="Bold"/>
+
+                        <GroupBox Header="Combat Event Settings">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="CombatDiedCheck" Content="Died" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CombatHullDamageCheck" Content="HullDamage" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CombatShieldStateCheck" Content="ShieldState" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CombatUnderAttackCheck" Content="UnderAttack" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CombatFactionKillBondCheck" Content="FactionKillBond" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CombatBountyCheck" Content="Bounty" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <Button Content="Generate Combat Events" Margin="0,10,0,0" Padding="10,5" Click="GenerateCombatEventsButton_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Exploration Events Tab -->
+            <TabItem Header="Exploration Events">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <CheckBox x:Name="IncludeExplorationEventsCheck" Content="Include Exploration Events" Margin="0,5,0,10" 
+                                 IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" FontWeight="Bold"/>
+
+                        <GroupBox Header="Exploration Event Settings">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="ExplorationScanCheck" Content="Scan" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="ExplorationFSSDiscoveryScanCheck" Content="FSSDiscoveryScan" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="ExplorationFSSSignalDiscoveredCheck" Content="FSSSignalDiscovered" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="ExplorationSAASignalsFoundCheck" Content="SAASignalsFound" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="ExplorationSellExplorationDataCheck" Content="SellExplorationData" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <Button Content="Generate Exploration Events" Margin="0,10,0,0" Padding="10,5" Click="GenerateExplorationEventsButton_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <!-- Station Events Tab -->
+            <TabItem Header="Station Events">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <CheckBox x:Name="IncludeStationEventsCheck" Content="Include Station Events" Margin="0,5,0,10" 
+                     IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" FontWeight="Bold"/>
+
+                        <GroupBox Header="Station Event Settings">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="StationDockedCheck" Content="Docked" Margin="0,5" 
+                             IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationUndockedCheck" Content="Undocked" Margin="0,5" 
+                             IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationMarketCheck" Content="Market" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationOutfittingCheck" Content="Outfitting" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationShipyardCheck" Content="Shipyard" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationStoredModulesCheck" Content="StoredModules" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationStoredShipsCheck" Content="StoredShips" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationModuleBuyCheck" Content="ModuleBuy" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationModuleSellCheck" Content="ModuleSell" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationShipPurchasedCheck" Content="ShipPurchased" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationShipSoldCheck" Content="ShipSold" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationMarketBuyCheck" Content="MarketBuy" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationMarketSellCheck" Content="MarketSell" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationMissionAcceptedCheck" Content="MissionAccepted" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationMissionCompletedCheck" Content="MissionCompleted" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationMissionFailedCheck" Content="MissionFailed" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="StationCommunityGoalCheck" Content="CommunityGoal" Margin="0,5" 
+                             IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <Button Content="Generate Station Events" Margin="0,10,0,0" Padding="10,5" Click="GenerateStationEventsButton_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <!-- Carrier Events Tab -->
+            <TabItem Header="Carrier Events">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <GroupBox Header="Carrier Jump Settings">
+                            <Grid Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Jump Time:" VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" x:Name="CarrierJumpMinutesTextBox" Text="25" Margin="5,0,5,0" TextChanged="SettingsChanged"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="min" VerticalAlignment="Center"/>
+                                <TextBox Grid.Row="0" Grid.Column="3" x:Name="CarrierJumpSecondsTextBox" Text="0" Margin="5,0,5,0" TextChanged="SettingsChanged"/>
+                                <TextBlock Grid.Row="0" Grid.Column="4" Text="sec" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Carrier Event Types" Margin="0,10,0,0">
+                            <StackPanel Margin="5">
+                                <CheckBox x:Name="CarrierJumpRequestCheck" Content="CarrierJumpRequest" Margin="0,5" 
+                                         IsChecked="True" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CarrierJumpCancelledCheck" Content="CarrierJumpCancelled" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CarrierJumpCheck" Content="CarrierJump" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CarrierDockingPermissionCheck" Content="CarrierDockingPermission" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CarrierDepositFuelCheck" Content="CarrierDepositFuel" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CarrierBuyCheck" Content="CarrierBuy" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                                <CheckBox x:Name="CarrierSellCheck" Content="CarrierSell" Margin="0,5" 
+                                         IsChecked="False" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <Button x:Name="CarrierJumpRequestButton" Content="Generate Carrier Jump Request" 
+                                Margin="0,10,0,0" Padding="10,5" Click="CarrierJumpRequestButton_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Log Tab -->
+            <TabItem Header="Log">
+                <Grid>
+                    <TextBox x:Name="LogTextBox" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button x:Name="GenerateButton" Content="Generate Files" Padding="15,5" Margin="0,0,10,0" Click="GenerateButton_Click"/>
+            <Button x:Name="StartLiveUpdatesButton" Content="Start Live Updates" Padding="15,5" IsEnabled="{Binding ElementName=EnableLiveUpdatesCheck, Path=IsChecked}" Click="StartLiveUpdatesButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
